@@ -1,0 +1,210 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "fluid-typography";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+    /* Vista Brand — light mode */
+    --vista-navy: #1f3a6b;
+    --vista-blue: #2563eb;
+    --vista-orange: #ea4e0a;
+    --vista-grey: #64748b;
+
+    --background: #ffffff;
+    --foreground: #1f3a6b;
+    --card: #ffffff;
+    --card-foreground: #1f3a6b;
+    --popover: #ffffff;
+    --popover-foreground: #1f3a6b;
+    --primary: #2563eb;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #1f3a6b;
+    --muted: #f8fafc;
+    --muted-foreground: #64748b;
+    --accent: #ea4e0a;
+    --accent-foreground: #ffffff;
+    --destructive: #991b1b;
+    --destructive-foreground: #ffffff;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #2563eb;
+    --chart-1: #2563eb;
+    --chart-2: #16a34a;
+    --chart-3: #ea4e0a;
+    --chart-4: #1f3a6b;
+    --chart-5: #64748b;
+    --radius: 0.5rem;
+    --sidebar: #1f3a6b;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: #2563eb;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #2d4a7c;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: #2d4a7c;
+    --sidebar-ring: #2563eb;
+    --text-fluid-h1: clamp(2.4rem, 3.5vw, 4.5rem);
+    --text-fluid-p: clamp(0.95rem, 1.2vw, 1.1rem);
+    --text-display: 4.5rem;
+    --text-h1: 2.4rem;
+    --text-body: 0.95rem;
+    --text-label: 0.72rem;
+    --warning: #f59e0b;
+    --warning-foreground: #000000;
+    --success: #16a34a;
+    --success-foreground: #ffffff;
+}
+
+.dark {
+    /* Vista Brand — dark mode */
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --card: #1e293b;
+    --card-foreground: #f8fafc;
+    --popover: #1e293b;
+    --popover-foreground: #f8fafc;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --secondary: #334155;
+    --secondary-foreground: #f8fafc;
+    --muted: #334155;
+    --muted-foreground: #94a3b8;
+    --accent: #ea4e0a;
+    --accent-foreground: #ffffff;
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --border: #334155;
+    --input: #334155;
+    --ring: #3b82f6;
+    --chart-1: #3b82f6;
+    --chart-2: #22c55e;
+    --chart-3: #ea4e0a;
+    --chart-4: #6366f1;
+    --chart-5: #94a3b8;
+    --sidebar: #0f172a;
+    --sidebar-foreground: #f8fafc;
+    --sidebar-primary: #3b82f6;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #1e293b;
+    --sidebar-accent-foreground: #f8fafc;
+    --sidebar-border: #334155;
+    --sidebar-ring: #3b82f6;
+    --warning: #f59e0b;
+    --warning-foreground: #ffffff;
+    --success: #22c55e;
+    --success-foreground: #0f172a;
+}
+
+@theme inline {
+    --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "Geist Mono", "Geist Mono Fallback";
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --font-size-fluid-h1: var(--text-fluid-h1);
+    --font-size-fluid-p: var(--text-fluid-p);
+    --font-size-display: var(--text-display);
+    --font-size-h1: var(--text-h1);
+    --font-size-body: var(--text-body);
+    --font-size-label: var(--text-label);
+    --radius-lg: 0.875rem; /* 14px per DESIGN.md */
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+}
+
+/* @layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+} */
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    html {
+        overscroll-behavior: none;
+    }
+    body {
+        @apply bg-background text-foreground font-sans;
+    }
+
+    ::-webkit-scrollbar {
+        width: clamp(6px, 0.5vw, 12px);
+        height: clamp(6px, 0.5vw, 12px);
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: oklch(37.112% 0.16514 261.798);
+        border-radius: clamp(3px, 0.25vw, 6px);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: oklch(37.112% 0.16514 261.798);
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+        background: oklch(37.112% 0.16514 261.798);
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: oklch(0.556 0 0);
+    }
+
+    ::-webkit-scrollbar-button {
+        display: none;
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .scrollbar-hide {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+    }
+}

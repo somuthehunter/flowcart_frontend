@@ -1,0 +1,55 @@
+name: Deploy to Staging Server
+
+on:
+    workflow_dispatch:
+
+jobs:
+    deployment:
+        runs-on: self-hosted
+        environment: staging
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+
+            - name: Install dependencies
+              env:
+                  HUSKY: "0"
+              run: |
+                  npm install -g pnpm@11
+                  pnpm install --frozen-lockfile
+
+            - name: Build
+              env:
+                  NODE_OPTIONS: "--max_old_space_size=4096"
+                  VITE_APP_TITLE: "Vista"
+                  VITE_API_BASE_URL: "https://vista.inworkglobal.com/api"
+                  VITE_LOG_URL: "https://vista.inworkglobal.com/log"
+                  VITE_APP_DOMAIN_URL: "https://vista.inworkglobal.com"
+                  VITE_LOG_API_KEY: ${{ secrets.SEQ_API_KEY_STAGING }}
+              run: pnpm build
+
+            - name: Clear target directory contents (except 'chat' folder)
+              uses: appleboy/ssh-action@v1
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: 22
+                  script: find /var/www/vista.inworkglobal.com -mindepth 1 -maxdepth 1 ! -name 'chat' -exec rm -rf {} +
+
+            - name: Transfer files via SCP
+              uses: appleboy/scp-action@v1
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: 22
+                  source: "dist/*"
+                  target: "/var/www/vista.inworkglobal.com/"
+                  strip_components: 1
+                  overwrite: true
