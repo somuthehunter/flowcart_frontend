@@ -49,7 +49,7 @@ const handlePrint = (bill: Bill) => {
                 <tbody>
                     ${bill.items?.map(i => `
                         <tr>
-                            <td>${i.product?.english_name || 'Item'}</td>
+                            <td>${i.brand_name || i.product?.english_name || 'Item'}</td>
                             <td>${i.quantity}</td>
                             <td class="text-right">₹${Number(i.unit_price).toFixed(2)}</td>
                             <td class="text-right">₹${Number((i as any).total_price || (i as any).subtotal || (Number(i.unit_price) * i.quantity)).toFixed(2)}</td>

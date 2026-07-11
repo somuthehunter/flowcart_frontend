@@ -13,6 +13,7 @@ export interface BillItem {
         english_name: string;
         product_code: string;
     };
+    brand_name?: string;
 }
 
 export interface Bill {

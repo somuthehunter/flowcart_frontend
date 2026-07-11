@@ -4,8 +4,10 @@ import { Product } from "@/services/api/product-ep";
 import { config } from "@/lib/config";
 
 export interface CartItem {
+    id: string; // Composite ID: `${productId}-${brandId || 'default'}`
     product: Product;
     quantity: number;
+    brand_id?: string;
 }
 
 export interface Customer {
@@ -21,9 +23,9 @@ interface PosState {
 
 interface PosActions {
     startSession: (customer: Customer) => void;
-    addToCart: (product: Product, quantity: number) => void;
-    updateQuantity: (productId: string, quantity: number) => void;
-    removeFromCart: (productId: string) => void;
+    addToCart: (product: Product, quantity: number, brandId?: string) => void;
+    updateQuantity: (cartItemId: string, quantity: number) => void;
+    removeFromCart: (cartItemId: string) => void;
     clearSession: () => void;
 }
 
@@ -39,16 +41,19 @@ export const usePosStore = create<PosState & PosActions>()(
             startSession: (customer) =>
                 set({ isSessionActive: true, customer, cart: {} }, false, `${STORE}/startSession`),
 
-            addToCart: (product, quantity) =>
+            addToCart: (product, quantity, brandId) =>
                 set(
                     (state) => {
-                        const existing = state.cart[product.id];
+                        const cartItemId = `${product.id}-${brandId || 'default'}`;
+                        const existing = state.cart[cartItemId];
                         return {
                             cart: {
                                 ...state.cart,
-                                [product.id]: {
+                                [cartItemId]: {
+                                    id: cartItemId,
                                     product,
                                     quantity: existing ? existing.quantity + quantity : quantity,
+                                    brand_id: brandId,
                                 },
                             },
                         };
@@ -57,15 +62,15 @@ export const usePosStore = create<PosState & PosActions>()(
                     `${STORE}/addToCart`
                 ),
 
-            updateQuantity: (productId, quantity) =>
+            updateQuantity: (cartItemId, quantity) =>
                 set(
                     (state) => {
-                        const existing = state.cart[productId];
+                        const existing = state.cart[cartItemId];
                         if (!existing) return state;
                         return {
                             cart: {
                                 ...state.cart,
-                                [productId]: { ...existing, quantity },
+                                [cartItemId]: { ...existing, quantity },
                             },
                         };
                     },
@@ -73,11 +78,11 @@ export const usePosStore = create<PosState & PosActions>()(
                     `${STORE}/updateQuantity`
                 ),
 
-            removeFromCart: (productId) =>
+            removeFromCart: (cartItemId) =>
                 set(
                     (state) => {
                         const newCart = { ...state.cart };
-                        delete newCart[productId];
+                        delete newCart[cartItemId];
                         return { cart: newCart };
                     },
                     false,

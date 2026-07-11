@@ -35,10 +35,10 @@ export const addFakeProduct = (params: CreateProductRequest) => {
         product_code: "NEW-PROD-" + faker.string.alphanumeric(4).toUpperCase(),
         current_stock: params.current_stock || 0,
         category: {
-            id: params.category_id,
+            id: params.category_id || "",
             name: "Mock Category",
         }
-    };
+    } as any;
     productData.push(product);
     return product;
 };
@@ -46,7 +46,7 @@ export const addFakeProduct = (params: CreateProductRequest) => {
 export const updateFakeProduct = (id: string, params: Partial<CreateProductRequest>) => {
     const index = productData.findIndex((p) => p.id === id);
     if (index !== -1) {
-        productData[index] = { ...productData[index], ...params };
+        productData[index] = { ...productData[index], ...params } as any;
         return productData[index];
     }
     return null;

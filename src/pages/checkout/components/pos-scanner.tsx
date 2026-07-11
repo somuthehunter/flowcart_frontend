@@ -53,9 +53,9 @@ export function PosScanner() {
         }
     };
 
-    const handleConfirmQuantity = (qty: number) => {
+    const handleConfirmQuantity = (qty: number, brandId?: string) => {
         if (scannedProduct) {
-            addToCart(scannedProduct, qty);
+            addToCart(scannedProduct, qty, brandId);
             toast.success(`Added ${qty} ${scannedProduct.english_name} to cart`);
         }
     };

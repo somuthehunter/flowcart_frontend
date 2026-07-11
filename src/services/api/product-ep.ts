@@ -25,6 +25,18 @@ export interface Product {
     };
     created_at?: string;
     updated_at?: string;
+    brands?: Array<{
+        id: string;
+        brand_id: string;
+        brand_name?: string;
+        brand?: {
+            id: string;
+            name: string;
+        };
+        selling_price: number | string;
+        purchase_price?: number | string;
+        sku?: string;
+    }>;
 }
 
 export type CreateProductRequest = {
@@ -38,6 +50,12 @@ export type CreateProductRequest = {
     current_stock?: number;
     minimum_stock?: number;
     image_url?: string;
+    brands?: Array<{
+        brand_name: string;
+        selling_price: number;
+        purchase_price?: number;
+        sku?: string;
+    }>;
 };
 
 export const getProducts = async (params?: Record<string, any>) => {

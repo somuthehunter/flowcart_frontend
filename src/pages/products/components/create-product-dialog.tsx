@@ -1,8 +1,8 @@
 import { FC, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 
 import {
     Dialog,
@@ -67,7 +67,13 @@ export const CreateProductDialog: FC<CreateProductDialogProps> = ({
             current_stock: 0,
             minimum_stock: 0,
             image_url: "",
+            brands: [],
         },
+    });
+
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "brands",
     });
 
     const { data: categoriesResponse, isLoading: categoriesLoading } = useQuery({
@@ -275,6 +281,99 @@ export const CreateProductDialog: FC<CreateProductDialogProps> = ({
                                         )}
                                     />
                                 </div>
+                            )}
+                        </div>
+
+                        {/* Brands / Sub Products */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-medium leading-none">
+                                    Brands / Sub Products
+                                </h4>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => append({ brand_name: "", selling_price: 0, purchase_price: undefined, sku: "" })}
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Add Brand
+                                </Button>
+                            </div>
+                            
+                            {fields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start border p-4 rounded-lg relative">
+                                    <div className="col-span-12 md:col-span-11 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormField
+                                            control={form.control}
+                                            name={`brands.${index}.brand_name`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Brand Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="e.g. MDH" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`brands.${index}.sku`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>SKU (Optional)</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="e.g. SKU-001" {...field} value={field.value || ""} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`brands.${index}.selling_price`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Selling Price ($)</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="number" step="0.01" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`brands.${index}.purchase_price`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Purchase Price ($) (Optional)</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="number" step="0.01" {...field} value={field.value || ""} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="col-span-12 md:col-span-1 flex justify-end">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-destructive"
+                                            onClick={() => remove(index)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                            {fields.length === 0 && (
+                                <p className="text-sm text-muted-foreground italic text-center py-4 border rounded-lg border-dashed">
+                                    No brands or sub-products added.
+                                </p>
                             )}
                         </div>
 
