@@ -93,7 +93,7 @@ export const createProduct = async (params: CreateProductRequest) => {
 
 export const updateProduct = async (id: string, params: Partial<CreateProductRequest>) => {
     try {
-        const response = await httpService.put<{ message: string; data: Product }>(
+        const response = await httpService.patch<{ message: string; data: Product }>(
             QueryConst.products.update.replace(":id", id),
             params
         );

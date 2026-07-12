@@ -13,6 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Eye, Printer } from "lucide-react";
 import { Bill } from "@/services/api/bill-ep";
 import { formatDate } from "@/lib/format";
+import { useState } from "react";
+import BillDetailsDialog from "./bill-details-dialog";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 const handlePrint = (bill: Bill) => {
     const printWindow = window.open('', '_blank');
@@ -75,13 +79,44 @@ const handlePrint = (bill: Bill) => {
 
 const BillingTable = () => {
     const { billsData, isBillsLoading } = useBilling();
+    const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const handleViewBill = (bill: Bill) => {
+        setSelectedBill(bill);
+        setIsDialogOpen(true);
+    };
+
+    const filteredBills = billsData?.data.filter((bill) => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+            bill.invoice_number.toLowerCase().includes(query) ||
+            bill.customer_name?.toLowerCase().includes(query) ||
+            bill.customer_mobile?.includes(query)
+        );
+    }) || [];
 
     if (isBillsLoading) return <AppLoading />;
 
     return (
-        <Card>
-            <CardContent className="p-0">
-                <Table>
+        <div className="space-y-4">
+            <div className="flex items-center gap-2">
+                <div className="relative flex-1 md:max-w-sm">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search by invoice, name, or phone..."
+                        className="pl-8"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+            </div>
+            <Card>
+                <CardContent className="p-0">
+                    <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Date</TableHead>
@@ -94,7 +129,7 @@ const BillingTable = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {billsData?.data.map((item: Bill) => (
+                        {filteredBills.map((item: Bill) => (
                             <TableRow key={item.id}>
                                 <TableCell className="whitespace-nowrap">
                                     {formatDate(item.created_at)}
@@ -114,7 +149,7 @@ const BillingTable = () => {
                                 <TableCell>{item.items?.length || 0}</TableCell>
                                 <TableCell>₹{Number(item.total_amount).toFixed(2)}</TableCell>
                                 <TableCell className="text-right space-x-2">
-                                    <Button variant="ghost" size="icon">
+                                    <Button variant="ghost" size="icon" onClick={() => handleViewBill(item)}>
                                         <Eye className="h-4 w-4 text-blue-500" />
                                     </Button>
                                     <Button variant="ghost" size="icon" onClick={() => handlePrint(item)}>
@@ -123,7 +158,7 @@ const BillingTable = () => {
                                 </TableCell>
                             </TableRow>
                         ))}
-                        {(!billsData?.data || billsData.data.length === 0) && (
+                        {filteredBills.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
                                     No bills found.
@@ -133,7 +168,13 @@ const BillingTable = () => {
                     </TableBody>
                 </Table>
             </CardContent>
+            <BillDetailsDialog 
+                bill={selectedBill} 
+                open={isDialogOpen} 
+                onOpenChange={setIsDialogOpen} 
+            />
         </Card>
+        </div>
     );
 };
 

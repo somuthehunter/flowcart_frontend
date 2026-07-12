@@ -11,11 +11,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import QueryConst from "@/constants/query-constants";
 import { AddQuantityDialog } from "./add-quantity-dialog";
 import { Product } from "@/services/api/product-ep";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function PosCart() {
     const { customer, cart, updateQuantity, removeFromCart, clearSession } = usePosStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingItem, setEditingItem] = useState<CartItem | null>(null);
+    const [paymentStatus, setPaymentStatus] = useState("PENDING");
     const queryClient = useQueryClient();
 
     const cartItems = Object.values(cart);
@@ -49,6 +51,7 @@ export function PosCart() {
                     brand_id: item.brand_id,
                     quantity: item.quantity,
                 })),
+                payment_status: paymentStatus,
                 tax_amount: tax,
                 discount_amount: discount,
             };
@@ -152,7 +155,19 @@ export function PosCart() {
             </CardContent>
             <Separator />
             <CardFooter className="flex flex-col pt-6 bg-muted/10">
-                <div className="w-full space-y-2 mb-6">
+                <div className="w-full space-y-4 mb-6">
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Payment Status</span>
+                        <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+                            <SelectTrigger className="w-[120px] h-8">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="PAID">PAID</SelectItem>
+                                <SelectItem value="PENDING">PENDING</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
                         <span>₹{subtotal.toFixed(2)}</span>
@@ -167,6 +182,21 @@ export function PosCart() {
                         <span>₹{total.toFixed(2)}</span>
                     </div>
                 </div>
+
+                <div className="w-full mb-6">
+                    <label className="text-sm text-muted-foreground block mb-2">Payment Status</label>
+                    <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+                        <SelectTrigger className="w-full h-10">
+                            <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="PENDING">Pending</SelectItem>
+                            <SelectItem value="PAID">Paid</SelectItem>
+                            <SelectItem value="PARTIAL">Partial</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
                 <Button 
                     className="w-full h-12 text-lg" 
                     size="lg" 

@@ -31,6 +31,7 @@ export interface Bill {
 export type CreateBillRequest = {
     customer_name?: string;
     customer_mobile?: string;
+    payment_status?: string;
     items: {
         product_id: string;
         quantity: number;

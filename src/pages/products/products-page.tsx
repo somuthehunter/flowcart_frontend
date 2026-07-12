@@ -9,12 +9,33 @@ import ProductsFilter from "./components/products-filter";
 import { CreateProductDialog } from "./components/create-product-dialog";
 import { useProducts } from "./hooks/use-products";
 import useProductsFilter from "./hooks/use-products-filter";
-import { exportProductLabels } from "@/services/api/product-ep";
+import { exportProductLabels, Product } from "@/services/api/product-ep";
 import { toast } from "sonner";
+import { ViewProductDialog } from "./components/view-product-dialog";
+import { UpdateProductDialog } from "./components/update-product-dialog";
 
 const ProductsPage = () => {
     const filters = useProductsFilter();
-    const { status, error, dataTable, isEmpty, createProductMutation } = useProducts(filters);
+    
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+
+    const handleEdit = (product: Product) => {
+        setSelectedProduct(product);
+        setIsUpdateOpen(true);
+    };
+
+    const handleView = (product: Product) => {
+        setSelectedProduct(product);
+        setIsViewOpen(true);
+    };
+
+    const { status, error, dataTable, isEmpty, createProductMutation, updateProductMutation } = useProducts(
+        filters, 
+        handleEdit, 
+        handleView
+    );
     const [isExporting, setIsExporting] = useState(false);
 
     const handleExport = async () => {
@@ -65,6 +86,19 @@ const ProductsPage = () => {
                     />
                 )}
             </div>
+
+            <ViewProductDialog 
+                product={selectedProduct} 
+                open={isViewOpen} 
+                onOpenChange={setIsViewOpen} 
+            />
+
+            <UpdateProductDialog 
+                product={selectedProduct} 
+                open={isUpdateOpen} 
+                onOpenChange={setIsUpdateOpen} 
+                updateMutation={updateProductMutation} 
+            />
         </PageWithHeaderFooter>
     );
 };

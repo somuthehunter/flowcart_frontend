@@ -10,7 +10,7 @@ export const createProductSchema = z.object({
     track_stock: z.boolean().default(true),
     current_stock: z.coerce.number().min(0, "Stock cannot be negative").default(0),
     minimum_stock: z.coerce.number().min(0, "Minimum stock cannot be negative").default(0).optional(),
-    image_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+    image_url: z.string().optional().or(z.literal("")),
     brands: z.array(z.object({
         brand_name: z.string().min(1, "Brand name is required"),
         selling_price: z.coerce.number().min(0, "Price must be positive"),

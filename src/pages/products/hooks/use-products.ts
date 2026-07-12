@@ -11,11 +11,17 @@ import {
 } from "@/services/api/product-ep";
 import QueryConst from "@/constants/query-constants";
 import { useDataTable } from "@/hooks/useDataTable";
+import useConfirm from "@/hooks/useConfirm";
 import { ActionType, getColumns } from "../lib/get-columns";
 import { ProductsFilterProps } from "../lib/types";
 
-export const useProducts = (filters: ProductsFilterProps) => {
+export const useProducts = (
+    filters: ProductsFilterProps,
+    onEdit?: (product: Product) => void,
+    onView?: (product: Product) => void
+) => {
     const queryClient = useQueryClient();
+    const confirm = useConfirm();
     const { pageNumber, rowsPerPage, searchKeyword, categoryId, status: filterStatus, handlePageChange } = filters;
 
     const { data: productsData, status, error } = useQuery({
@@ -64,20 +70,25 @@ export const useProducts = (filters: ProductsFilterProps) => {
     });
 
     const handleRowAction = useCallback(
-        (type: ActionType, row: Product) => {
+        async (type: ActionType, row: Product) => {
             if (type === "delete") {
-                if (confirm("Are you sure you want to delete this product?")) {
+                try {
+                    await confirm({
+                        title: "Delete Product",
+                        description: "Are you sure you want to delete this product?",
+                        confirmationText: "Delete",
+                    });
                     deleteProductMutation.mutate(row.id);
+                } catch {
+                    // user cancelled
                 }
             } else if (type === "edit") {
-                // TODO: open edit dialog
-                toast.info("Edit product not implemented yet");
+                if (onEdit) onEdit(row);
             } else if (type === "view") {
-                // TODO: view product details
-                toast.info("View product not implemented yet");
+                if (onView) onView(row);
             }
         },
-        [deleteProductMutation]
+        [deleteProductMutation, onEdit, onView, confirm]
     );
 
     const columns = useMemo(

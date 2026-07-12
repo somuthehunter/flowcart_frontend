@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +11,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,20 +39,22 @@ import {
 } from "../schemas/product-schema";
 import QueryConst from "@/constants/query-constants";
 import httpService from "@/services/http-service";
-import { CreateProductRequest } from "@/services/api/product-ep";
+import { Product, CreateProductRequest } from "@/services/api/product-ep";
 import { UseMutationResult } from "@tanstack/react-query";
 
-interface CreateProductDialogProps {
-    children: React.ReactNode;
-    createMutation: UseMutationResult<any, any, CreateProductRequest, unknown>;
+interface UpdateProductDialogProps {
+    product: Product | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    updateMutation: UseMutationResult<any, any, { id: string; params: Partial<CreateProductRequest> }, unknown>;
 }
 
-export const CreateProductDialog: FC<CreateProductDialogProps> = ({
-    children,
-    createMutation,
+export const UpdateProductDialog: FC<UpdateProductDialogProps> = ({
+    product,
+    open,
+    onOpenChange,
+    updateMutation,
 }) => {
-    const [open, setOpen] = useState(false);
-
     const form = useForm<CreateProductFormValues>({
         resolver: zodResolver(createProductSchema) as any,
         defaultValues: {
@@ -71,6 +72,29 @@ export const CreateProductDialog: FC<CreateProductDialogProps> = ({
         },
     });
 
+    useEffect(() => {
+        if (product && open) {
+            form.reset({
+                english_name: product.english_name || "",
+                bengali_name: product.bengali_name || "",
+                description: product.description || "",
+                category_id: product.category_id || "",
+                unit: product.unit || "",
+                base_price: Number(product.base_price || 0),
+                track_stock: product.track_stock ?? true,
+                current_stock: Number(product.current_stock || 0),
+                minimum_stock: Number(product.minimum_stock || 0),
+                image_url: product.image_url || "",
+                brands: product.brands?.map(b => ({
+                    brand_name: b.brand?.name || b.brand_name || "",
+                    selling_price: Number(b.selling_price || 0),
+                    purchase_price: b.purchase_price ? Number(b.purchase_price) : undefined,
+                    sku: b.sku || ""
+                })) || [],
+            });
+        }
+    }, [product, open, form]);
+
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: "brands",
@@ -82,28 +106,29 @@ export const CreateProductDialog: FC<CreateProductDialogProps> = ({
             const response = await httpService.get(QueryConst.categories.list);
             return response.data;
         },
-        enabled: open, // Only fetch when dialog is open
+        enabled: open,
     });
 
     const categories = categoriesResponse?.data || [];
 
     const onSubmit = (data: CreateProductFormValues) => {
-        createMutation.mutate(data, {
+        if (!product) return;
+        updateMutation.mutate({ id: product.id, params: data }, {
             onSuccess: () => {
-                form.reset();
-                setOpen(false);
+                onOpenChange(false);
             },
         });
     };
 
+    if (!product) return null;
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>{children}</DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Create New Product</DialogTitle>
+                    <DialogTitle>Update Product</DialogTitle>
                     <DialogDescription>
-                        Add a new product to your catalog. Click save when you're done.
+                        Modify the details for {product.english_name}. Click save when you're done.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -416,18 +441,18 @@ export const CreateProductDialog: FC<CreateProductDialogProps> = ({
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setOpen(false)}
+                                onClick={() => onOpenChange(false)}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={createMutation.isPending}
+                                disabled={updateMutation.isPending}
                             >
-                                {createMutation.isPending && (
+                                {updateMutation.isPending && (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 )}
-                                Save Product
+                                Save Changes
                             </Button>
                         </DialogFooter>
                     </form>
